@@ -7,7 +7,6 @@ cc_prebuilt_binary {
         "GoogleDialer",
         "bcr",
         "GoogleContacts",
-        "MoseyApp",
     ],
     strip: {
         none: true,
