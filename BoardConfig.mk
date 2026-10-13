@@ -36,6 +36,17 @@ TARGET_KERNEL_CONFIG += vendor/laurel_sprout.config
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 3221225472
 BOARD_VENDORIMAGE_PARTITION_SIZE := 1073741824
 
+# EROFS
+# Variable-length compression clusters. Without this, erofs-utils defaults the
+# pcluster to one 4096-byte block, which is the minimum possible compression
+# window. 65536 sits at the knee of the curve (measured -18.2% vs 4096 on
+# erofs-utils' multi-file benchmark) without the random-read latency cost of
+# 262144. Scoped here rather than in sm6125-common because read performance is
+# per-device; pcpubuf allocates per-CPU (64 KiB x NR_CPUS).
+#
+# Baseline at 4096 was 693163 blocks / 2.644 GiB. Revert this line to return.
+BOARD_EROFS_PCLUSTER_SIZE := 65536
+
 # Properties
 TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
