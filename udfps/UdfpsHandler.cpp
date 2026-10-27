@@ -195,7 +195,7 @@ void LaurelSproutUdfpsHandler::workerLoop() {
                 continue;
             }
             LOG(ERROR) << "failed to poll fod_ui/eventfd: " << strerror(errno);
-            continue;
+            break;
         }
 
         {
@@ -259,9 +259,14 @@ void LaurelSproutUdfpsHandler::applyDesiredState() {
 
     if (nit != mAppliedNit) {
         if (mDevice && mDevice->extCmd) {
-            mDevice->extCmd(mDevice, COMMAND_NIT, nit ? PARAM_NIT_FOD : PARAM_NIT_NONE);
-            mAppliedNit = nit;
-            LOG(INFO) << "NIT " << (nit ? "on" : "off");
+            int rc = mDevice->extCmd(mDevice, COMMAND_NIT,
+                                     nit ? PARAM_NIT_FOD : PARAM_NIT_NONE);
+            if (rc == 0) {
+                mAppliedNit = nit;
+                LOG(INFO) << "NIT " << (nit ? "on" : "off");
+            } else {
+                LOG(ERROR) << "failed to set NIT " << (nit ? "on" : "off") << ": " << rc;
+            }
         }
     }
 
